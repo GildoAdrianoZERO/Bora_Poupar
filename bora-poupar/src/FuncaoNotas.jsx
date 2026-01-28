@@ -8,18 +8,20 @@ export const gerarNotas = (metaAlvo) => {
 
   while (somaAtual < metaAlvo) {
     const falta = metaAlvo - somaAtual;
-
     const notasPossiveis = notasDisponiveis.filter(nota => nota <= falta);
 
     if (notasPossiveis.length === 0) break;
-
     const indiceAleatorio = Math.floor(Math.random() * notasPossiveis.length);
     const notaSelecionada = notasPossiveis[indiceAleatorio];
 
-    listaDeNotas.push(notaSelecionada);
+    const novaNota ={
+      id: crypto.randomUUID(),
+      valor: notaSelecionada,
+      pago: false
+    };
+    
+    listaDeNotas.push(novaNota);
     somaAtual += notaSelecionada;
   }
-
   return listaDeNotas;
-
 }
