@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import { gerarNotas } from './FuncaoNotas';
 
+
+import { supabase } from './supabaseClient'
+console.log("Supabase Client:", supabase);
+
+
 function App() {
   const [valores, setValores] = useState([]);
   const meta = 20000;
@@ -11,12 +16,12 @@ function App() {
     setValores(notasGeradas);
   }, []);
 
-  // --- LÓGICA DO CLIQUE ---
+  
   const handleToggle = (id) => {
     setValores(prevValores => {
       return prevValores.map(item => {
         if (item.id === id){
-          // CORREÇÃO CRÍTICA: O spread operator (...) mantém o ID e Valor originais
+          // O spread operator (...) mantém o ID e Valor originais
           return { ...item, pago: !item.pago };
         }
         return item;
@@ -24,11 +29,8 @@ function App() {
     });
   };
 
-  // --- CÁLCULO FINANCEIRO (REDUCE) ---
   // Soma apenas os itens que estão com 'pago: true'
-  const totalGuardado = valores
-    .filter(item => item.pago)
-    .reduce((acc, item) => acc + item.valor, 0);
+  const totalGuardado = valores.filter(item => item.pago).reduce((acc, item) => acc + item.valor, 0);
 
   return (
     <div className="min-h-screen w-full bg-slate-900 text-white font-sans flex flex-col items-center py-10 px-2 md:px-4">
@@ -50,8 +52,8 @@ function App() {
           <div className="text-center md:text-left">
             <p className="text-slate-400 text-xs md:text-sm uppercase tracking-wider font-semibold">Total Guardado</p>
             {/* Exibindo o valor calculado pelo REDUCE */}
-            <p className="text-2xl md:text-3xl font-bold text-green-400">R$ {totalGuardado.toFixed(2)}</p>
-            <p className="text-xs text-slate-500 mt-1">Meta: R$ {meta.toFixed(2)}</p>
+            <p className="text-3xl md:text-3xl font-bold text-green-400">R$ {totalGuardado.toFixed(2)}</p>
+            <p className="text-1xl text-slate-500 mt-1 font-bold text-yellow-400">Meta: R$ {meta.toFixed(2)}</p>
           </div>
           
           <div className="h-px w-full md:w-px md:h-12 bg-slate-600"></div>
