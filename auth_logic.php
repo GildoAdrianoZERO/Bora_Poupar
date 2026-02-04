@@ -12,45 +12,55 @@ require 'BancoDeDados/conexao_db.php';
 $erro = "";
 $sucesso = "";
 
-// 2. PROCESSAR O FORMULÁRIO
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     $email = trim($_POST['email']);
     $senha = trim($_POST['password']);
-    $acao  = $_POST['acao']; 
+    $acao = $_POST['acao'];
 
     // --- ROTA DE CADASTRO ---
     if ($acao === 'cadastrar') {
         $nome = trim($_POST['full_name']);
-        $meta = (int)$_POST['meta']; // número inteiro
+        $meta = (int) $_POST['meta'];
 
-        // Validação: Nada pode estar vazio
+
+        $confirmarSenha = trim($_POST['confirm_password']);
+
+
         if (empty($nome) || empty($email) || empty($senha) || $meta <= 0) {
-            $erro = "Preencha todos os campos. A meta deve ser maior que zero.";
+            $erro = "Preencha todos os campos corretamente.";
+        }
+        
+        elseif ($meta > 100000) {
+            $erro = "A meta máxima permitida é de R$ 100.000,00.";
+        }
+        
+        elseif ($senha !== $confirmarSenha) {
+            $erro = "As senhas não conferem. Tente novamente.";
         } else {
             // Verifica se e-mail já existe
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
-            
+
             if ($stmt->rowCount() > 0) {
                 $erro = "Este e-mail já está em uso.";
             } else {
-                // Criação do Usuário
+
                 try {
                     $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-                    
+
                     $sql = "INSERT INTO users (full_name, email, password, meta_alvo) VALUES (?, ?, ?, ?)";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute([$nome, $email, $senhaHash, $meta]);
-                    
+
                     $sucesso = "Conta criada! Agora faça login com sua senha.";
                 } catch (PDOException $e) {
-                    $erro = "Erro técnico no banco de dados.";
+                    $erro = "Erro interno do servidor";
                 }
             }
         }
-    } 
-    
+    }
+
     // --- ROTA DE LOGIN ---
     elseif ($acao === 'login') {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
